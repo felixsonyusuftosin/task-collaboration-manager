@@ -108,6 +108,17 @@ export function copyHistoryEntry(entry: HistoryEntry): HistoryEntry {
   };
 }
 
+export function getHistoryEntryAtIndex(
+  history: HistoryEntry[],
+  historyIndex: number,
+): HistoryEntry | null {
+  if (historyIndex < 0 || historyIndex >= history.length) {
+    return null;
+  }
+
+  return history[historyIndex];
+}
+
 export function createTaskRecordFromList(tasks: Task[]): TaskRecord {
   const nextTasks: TaskRecord = {};
 
@@ -247,5 +258,25 @@ export function createSeedState(input: SeedDemoInput): TaskStoreState {
     tasks,
     history: [entry],
     historyIndex: 0,
+  };
+}
+
+export function createTimeTravelState(
+  state: TaskStoreState,
+  historyIndex: number,
+): Partial<TaskStoreState> {
+  if (historyIndex === state.historyIndex) {
+    return {};
+  }
+
+  const historyEntry = getHistoryEntryAtIndex(state.history, historyIndex);
+
+  if (!historyEntry) {
+    return {};
+  }
+
+  return {
+    tasks: cloneTaskRecord(historyEntry.tasks),
+    historyIndex,
   };
 }

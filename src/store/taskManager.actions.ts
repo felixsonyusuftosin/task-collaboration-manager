@@ -12,6 +12,7 @@ import {
   copyHistoryEntry,
   createHistoryEntry,
   createSeedState,
+  createTimeTravelState,
   removeTaskFromRecord,
   updateTaskInRecord,
 } from '@store/taskManager.utils';
@@ -24,6 +25,7 @@ export type TaskStoreActions = {
   updateTask: (input: UpdateTaskInput) => void;
   removeTask: (input: RemoveTaskInput) => void;
   seedDemo: (input: SeedDemoInput) => void;
+  timeTravelTo: (historyIndex: number) => void;
 };
 
 type TaskStoreSlice = TaskStoreState & TaskStoreActions;
@@ -89,6 +91,10 @@ export function createTaskStoreActions(
         ...currentState,
         ...nextState,
       }));
+    },
+
+    timeTravelTo(historyIndex) {
+      set((state) => createTimeTravelState(state, historyIndex));
     },
   };
 }

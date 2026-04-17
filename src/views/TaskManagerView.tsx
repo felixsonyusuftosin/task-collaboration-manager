@@ -1,113 +1,132 @@
-import { History, ListTree, TimerReset } from 'lucide-react';
-import { TaskItem } from '@components';
+import { useEffect, useState } from 'react';
+import type { Task, TaskId } from '@types';
+import {
+  HistorySliderDock,
+  TaskFormPanel,
+  TaskList,
+  TaskToolbar,
+} from '@components';
 import { useTaskManagerStore } from '@store';
-import { APP_STRINGS } from '@utils';
+import { APP_STRINGS, createDemoTasks } from '@utils';
+
+function getSelectedTaskLabel(
+  selectedTaskId: TaskId | null,
+  tasks: Record<TaskId, Task>,
+): string {
+  if (!selectedTaskId) {
+    return APP_STRINGS.noTaskSelectedLabel;
+  }
+
+  const selectedTask = tasks[selectedTaskId];
+
+  if (!selectedTask) {
+    return APP_STRINGS.noTaskSelectedLabel;
+  }
+
+  return `${APP_STRINGS.editingTaskPrefix}: ${selectedTask.title}`;
+}
 
 export function TaskManagerView() {
-  const taskCount = useTaskManagerStore(
-    (state) => Object.keys(state.tasks).length,
-  );
-  const snapshotCount = useTaskManagerStore((state) => state.history.length);
+  const tasks = useTaskManagerStore((state) => state.tasks);
+  const history = useTaskManagerStore((state) => state.history);
   const historyIndex = useTaskManagerStore((state) => state.historyIndex);
+  const addTask = useTaskManagerStore((state) => state.addTask);
+  const removeTask = useTaskManagerStore((state) => state.removeTask);
+  const seedDemo = useTaskManagerStore((state) => state.seedDemo);
+  const timeTravelTo = useTaskManagerStore((state) => state.timeTravelTo);
+  const updateTask = useTaskManagerStore((state) => state.updateTask);
+
+  const [selectedTaskId, setSelectedTaskId] = useState<TaskId | null>(null);
+
+  useEffect(() => {
+    if (history.length > 0) {
+      return;
+    }
+
+    seedDemo({
+      tasks: createDemoTasks(),
+    });
+  }, [history.length, seedDemo]);
+
+  useEffect(() => {
+    if (!selectedTaskId || tasks[selectedTaskId]) {
+      return;
+    }
+
+    setSelectedTaskId(null);
+  }, [selectedTaskId, tasks]);
+
+  const handleCreateTask = (task: Task): void => {
+    addTask(task);
+  };
+
+  const handleUpdateTask = (taskId: TaskId, changes: Partial<Task>): void => {
+    updateTask({
+      id: taskId,
+      changes,
+    });
+  };
+
+  const handleRemoveTask = (taskId: TaskId): void => {
+    removeTask({
+      id: taskId,
+    });
+
+    if (selectedTaskId === taskId) {
+      setSelectedTaskId(null);
+    }
+  };
+
+  const handleEditTask = (taskId: TaskId): void => {
+    setSelectedTaskId(taskId);
+  };
+
+  const handleClearSelection = (): void => {
+    setSelectedTaskId(null);
+  };
+
+  const handleCommitHistoryIndex = (nextHistoryIndex: number): void => {
+    timeTravelTo(nextHistoryIndex);
+  };
+
+  const taskCount = Object.keys(tasks).length;
+  const snapshotCount = history.length;
+  const selectedTaskLabel = getSelectedTaskLabel(selectedTaskId, tasks);
 
   return (
-    <main className="min-h-screen px-4 py-10 sm:px-6 lg:px-8">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-        <section className="overflow-hidden rounded-[28px] border border-white/70 bg-white/85 p-8 shadow-panel backdrop-blur">
-          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-            <div className="space-y-3">
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-700">
-                Interview Scaffold
-              </p>
-              <div className="space-y-2">
-                <h1 className="text-3xl font-semibold text-slate-950 sm:text-4xl">
-                  {APP_STRINGS.applicationTitle}
-                </h1>
-                <p className="max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
-                  {APP_STRINGS.applicationSubtitle}
-                </p>
-              </div>
-            </div>
+    <main className="min-h-screen px-4 py-6 pb-40 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
+        <TaskToolbar
+          historyIndex={historyIndex}
+          selectedTaskLabel={selectedTaskLabel}
+          snapshotCount={snapshotCount}
+          taskCount={taskCount}
+          onClearSelection={handleClearSelection}
+        />
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl bg-brand-50 p-4">
-                <ListTree className="h-5 w-5 text-brand-700" />
-                <p className="mt-3 text-sm font-medium text-slate-900">
-                  Parent-child tasks
-                </p>
-              </div>
-              <div className="rounded-2xl bg-brand-50 p-4">
-                <TimerReset className="h-5 w-5 text-brand-700" />
-                <p className="mt-3 text-sm font-medium text-slate-900">
-                  Temporal shifts
-                </p>
-              </div>
-              <div className="rounded-2xl bg-brand-50 p-4">
-                <History className="h-5 w-5 text-brand-700" />
-                <p className="mt-3 text-sm font-medium text-slate-900">
-                  Snapshot history
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+        <section className="grid gap-6 xl:grid-cols-[360px_minmax(0,1fr)]">
+          <TaskFormPanel
+            selectedTaskId={selectedTaskId}
+            tasks={tasks}
+            onCancelEdit={handleClearSelection}
+            onCreateTask={handleCreateTask}
+            onUpdateTask={handleUpdateTask}
+          />
 
-        <section className="grid gap-8 lg:grid-cols-[1.5fr_1fr]">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-slate-900">
-                {APP_STRINGS.currentStateTitle}
-              </h2>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                Shell only
-              </span>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <TaskItem label="Task Count" value={String(taskCount)} />
-              <TaskItem label="Selected Action" value="Not implemented" />
-            </div>
-
-            <div className="rounded-2xl border border-dashed border-slate-300 bg-white/70 p-6 text-sm text-slate-500">
-              {APP_STRINGS.emptyStateLabel}
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-panel">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-slate-900">
-                  {APP_STRINGS.historyTitle}
-                </h2>
-                <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
-                  Index {historyIndex < 0 ? 'None' : historyIndex}
-                </span>
-              </div>
-
-              <div className="mt-5 grid gap-4">
-                <TaskItem
-                  label="Snapshot Count"
-                  value={String(snapshotCount)}
-                />
-                <TaskItem label="Undo / Redo" value="Not implemented" />
-              </div>
-            </section>
-
-            <section className="rounded-[24px] border border-slate-200 bg-white p-6 shadow-panel">
-              <h2 className="text-xl font-semibold text-slate-900">
-                {APP_STRINGS.notesTitle}
-              </h2>
-              <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
-                {APP_STRINGS.architectureNotes.map((note) => (
-                  <li key={note} className="rounded-2xl bg-slate-50 px-4 py-3">
-                    {note}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </div>
+          <TaskList
+            selectedTaskId={selectedTaskId}
+            tasks={tasks}
+            onEditTask={handleEditTask}
+            onRemoveTask={handleRemoveTask}
+          />
         </section>
       </div>
+
+      <HistorySliderDock
+        history={history}
+        historyIndex={historyIndex}
+        onCommitHistoryIndex={handleCommitHistoryIndex}
+      />
     </main>
   );
 }
