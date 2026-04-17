@@ -1,14 +1,14 @@
 import { create } from 'zustand';
-import type { TaskManagerState } from '@types';
+import type { TaskStoreState } from '@types';
 import {
-  createTaskManagerActions,
-  type TaskManagerActions,
+  createTaskStoreActions,
+  type TaskStoreActions,
 } from '@store/taskManager.actions';
-import { createInitialHistoryState } from '@store/taskManager.utils';
+import { createInitialTaskStoreState } from '@store/taskManager.utils';
 
-export type TaskManagerStore = TaskManagerState & TaskManagerActions;
+export type TaskStore = TaskStoreState & TaskStoreActions;
 
-export const useTaskManagerStore = create<TaskManagerStore>()(() => ({
-  ...createInitialHistoryState(),
-  ...createTaskManagerActions(),
+export const useTaskManagerStore = create<TaskStore>()(() => ({
+  ...createInitialTaskStoreState(),
+  ...createTaskStoreActions(),
 }));

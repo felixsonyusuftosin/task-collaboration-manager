@@ -1,6 +1,6 @@
-import type { TaskManagerState } from '@types';
+import type { TaskStoreState } from '@types';
 
-export function createInitialHistoryState(): TaskManagerState {
+export function createInitialTaskStoreState(): TaskStoreState {
   return {
     tasks: {},
     history: [],
@@ -8,14 +8,14 @@ export function createInitialHistoryState(): TaskManagerState {
   };
 }
 
-export function hasHistory(state: TaskManagerState): boolean {
+export function hasHistory(state: TaskStoreState): boolean {
   return state.historyIndex >= 0 && state.history.length > 0;
 }
 
-export function getTaskCount(state: TaskManagerState): number {
+export function getTaskCount(state: TaskStoreState): number {
   return Object.keys(state.tasks).length;
 }
 
-export function getSnapshotCount(state: TaskManagerState): number {
+export function getSnapshotCount(state: TaskStoreState): number {
   return state.history.length;
 }

@@ -5,29 +5,36 @@ export type TaskStatus = 'active' | 'orphaned';
 export type Task = {
   id: TaskId;
   title: string;
-  startDateTime: string;
-  endDateTime: string;
   parentId: TaskId | null;
   status: TaskStatus;
+  startAt: string;
+  endAt: string;
 };
 
 export type TaskRecord = Record<TaskId, Task>;
 
-export type TaskHistorySnapshot = {
+export type HistoryEntry = {
   tasks: TaskRecord;
   createdAt: string;
 };
 
-export type TaskManagerState = {
+export type TaskStoreState = {
   tasks: TaskRecord;
-  history: TaskHistorySnapshot[];
+  history: HistoryEntry[];
   historyIndex: number;
 };
 
-export type TaskManagerActionName =
-  | 'createTask'
-  | 'updateTaskTitle'
-  | 'updateTaskSchedule'
-  | 'removeTask'
-  | 'undo'
-  | 'redo';
+export type AddTaskInput = Task;
+
+export type UpdateTaskInput = {
+  id: TaskId;
+  changes: Partial<Task>;
+};
+
+export type RemoveTaskInput = {
+  id: TaskId;
+};
+
+export type SeedDemoInput = {
+  tasks: Task[];
+};

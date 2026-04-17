@@ -1,11 +1,25 @@
-import type { TaskManagerActionName } from '@types';
+import type {
+  AddTaskInput,
+  HistoryEntry,
+  RemoveTaskInput,
+  SeedDemoInput,
+  UpdateTaskInput,
+} from '@types';
 
-export type TaskManagerActions = {
-  selectedAction: TaskManagerActionName | null;
+export type TaskStoreActions = {
+  pushHistory: (entry: HistoryEntry) => void;
+  addTask: (input: AddTaskInput) => void;
+  updateTask: (input: UpdateTaskInput) => void;
+  removeTask: (input: RemoveTaskInput) => void;
+  seedDemo: (input: SeedDemoInput) => void;
 };
 
-export function createTaskManagerActions(): TaskManagerActions {
+export function createTaskStoreActions(): TaskStoreActions {
   return {
-    selectedAction: null,
+    pushHistory() {},
+    addTask() {},
+    updateTask() {},
+    removeTask() {},
+    seedDemo() {},
   };
 }
