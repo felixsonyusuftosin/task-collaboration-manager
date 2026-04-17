@@ -8,7 +8,7 @@ import { createInitialTaskStoreState } from '@store/taskManager.utils';
 
 export type TaskStore = TaskStoreState & TaskStoreActions;
 
-export const useTaskManagerStore = create<TaskStore>()(() => ({
+export const useTaskManagerStore = create<TaskStore>()((set, get) => ({
   ...createInitialTaskStoreState(),
-  ...createTaskStoreActions(),
+  ...createTaskStoreActions(set, get),
 }));

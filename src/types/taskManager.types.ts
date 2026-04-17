@@ -26,9 +26,17 @@ export type TaskStoreState = {
 
 export type AddTaskInput = Task;
 
+export type UpdateTaskChanges = {
+  title?: string;
+  parentId?: TaskId | null;
+  status?: TaskStatus;
+  startAt?: string;
+  endAt?: string;
+};
+
 export type UpdateTaskInput = {
   id: TaskId;
-  changes: Partial<Task>;
+  changes: UpdateTaskChanges;
 };
 
 export type RemoveTaskInput = {
