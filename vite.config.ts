@@ -1,16 +1,20 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+
+const currentFilePath = fileURLToPath(import.meta.url);
+const currentDirectoryPath = path.dirname(currentFilePath);
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@components': path.resolve(__dirname, 'src/components'),
-      '@store': path.resolve(__dirname, 'src/store'),
-      '@types': path.resolve(__dirname, 'src/types'),
-      '@utils': path.resolve(__dirname, 'src/utils'),
-      '@views': path.resolve(__dirname, 'src/views'),
+      '@components': path.resolve(currentDirectoryPath, 'src/components'),
+      '@store': path.resolve(currentDirectoryPath, 'src/store'),
+      '@types': path.resolve(currentDirectoryPath, 'src/types'),
+      '@utils': path.resolve(currentDirectoryPath, 'src/utils'),
+      '@views': path.resolve(currentDirectoryPath, 'src/views'),
     },
   },
 });
